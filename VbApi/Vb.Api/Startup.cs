@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Vb.Data;
+using System.Text.Json.Serialization;
 
 namespace VbApi;
 
@@ -12,19 +13,26 @@ public class Startup
         Configuration = configuration;
     }
 
+
+
     public void ConfigureServices(IServiceCollection services)
     {
         string connection = Configuration.GetConnectionString("MsSqlConnection");
         services.AddDbContext<VbDbContext>(options => options.UseSqlServer(connection));
-        //services.AddDbContext<VbDbContext>(options => options.UseNpgsql(connection));
-        
-        services.AddControllers();
-        
+
+
+
+        services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                }); //for cycle problem
+
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
     }
-    
-    public void Configure(IApplicationBuilder app,IWebHostEnvironment env)
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())
         {
